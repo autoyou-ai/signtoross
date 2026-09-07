@@ -15,6 +15,7 @@ the single file onto a machine and diagnose a deployment with it.
 | `up` | starts exactly one connector | yes, no-ops if one is running |
 | `status` | connector count, service/container connectors, origin and public hostname | yes, read-only |
 | `doctor` | samples the hostname to expose split-brain routing | yes, read-only |
+| `harden` | audits what the public hostname exposes, from outside | yes, read-only |
 | `down` | stops this deployment's connector | yes |
 
 ```bash
@@ -22,6 +23,7 @@ python signtoross_tunnel.py preflight --root /path/to/deployment
 python signtoross_tunnel.py up      --hostname sign.example.com
 python signtoross_tunnel.py status  --hostname sign.example.com --json
 python signtoross_tunnel.py doctor  --hostname sign.example.com --samples 10
+python signtoross_tunnel.py harden  --hostname sign.example.com
 python signtoross_tunnel.py down
 ```
 
@@ -70,10 +72,30 @@ never to restart.
 `preflight` also fails a non-loopback origin on purpose. A LAN address lets a
 connector on another machine answer the route, which is how the split starts.
 
+## Hardening
+
+`harden` checks the public posture from outside, the way a client sees it,
+rather than trusting local configuration:
+
+- responses actually arrive through Cloudflare
+- HSTS, `X-Content-Type-Options`, `Referrer-Policy` are set
+- the signing page cannot be framed, which is what stops a click landing on a
+  signature button hidden under an overlay
+- `/health` and `/api/app` are not publicly reachable
+- whether Cloudflare Access sits in front of the admin surface
+
+The bundled `services/opensign/Caddyfile` sets every header `harden` checks.
+If they are missing on a running deployment, the edge is serving an older
+config; restart it and re-run.
+
+Two controls cannot be verified from a single client and are reported as
+advisory: rate limiting on signing and login paths, and an Access policy on
+the admin surface. Configure both in the Cloudflare dashboard.
+
 ## Driving it from an agent
 
 `manifests/claude-skill/SKILL.md` is a Claude skill. `manifests/openai-tools.json`
-is an OpenAI function-calling schema covering the same five commands. Both
+is an OpenAI function-calling schema covering the same six commands. Both
 carry the operational rules: confirm with the operator before `up`, because it
 exposes a signing service publicly, and never restart to fix a mixed 200/502
 result.

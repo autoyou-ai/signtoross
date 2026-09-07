@@ -97,6 +97,18 @@ worse:
 python tools/tunnel-agent/signtoross_tunnel.py doctor --hostname sign.example.com
 ```
 
+Audit what the hostname exposes, from outside:
+
+```bash
+python tools/tunnel-agent/signtoross_tunnel.py harden --hostname sign.example.com
+```
+
+`harden` checks that traffic arrives through Cloudflare, that HSTS,
+`X-Content-Type-Options` and `Referrer-Policy` are set, that the signing page
+cannot be framed, and that `/health` and `/api/app` are not publicly reachable.
+The bundled `services/opensign/Caddyfile` sets all of these; if `harden`
+reports them missing, the edge is running an older config.
+
 The agent ships a Claude skill and an OpenAI function schema under
 `tools/tunnel-agent/manifests/`, so an assistant can run and diagnose the tunnel
 directly. See [`tools/tunnel-agent/README.md`](tools/tunnel-agent/README.md).

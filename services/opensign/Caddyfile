@@ -1,8 +1,46 @@
+# OpenSign edge.
+#
+# This is the only origin the Cloudflare Tunnel should point at. Keep it on
+# loopback (127.0.0.1:3051) so that only a connector running on this host can
+# serve it: a LAN address lets a connector on another machine answer the same
+# route, and the two then disagree about where the origin is.
+
 :3051 {
+	# Response headers applied to everything this edge serves.
+	#
+	# Cloudflare terminates TLS in front of this, so a browser never speaks to
+	# Caddy directly and these are the headers that survive to the client.
+	# Without them a signing UI is framable, sniffable, and leaks its full URL
+	# in the Referer of every outbound link.
+	header {
+		# Signing pages must never be framed. This is the control that stops a
+		# third-party page from overlaying a signature button.
+		X-Frame-Options "DENY"
+		Content-Security-Policy "frame-ancestors 'none'"
+
+		X-Content-Type-Options "nosniff"
+
+		# Document URLs can carry a signing context; do not send them onward.
+		Referrer-Policy "strict-origin-when-cross-origin"
+
+		# One year, subdomains included. Remove `preload` unless you have
+		# actually submitted the domain to the HSTS preload list.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+		# A signed document is never a cacheable public asset.
+		Cache-Control "no-store"
+
+		-Server
+		-X-Powered-By
+	}
+
+	# Signature callbacks from OpenSign to the document backend.
 	handle /webhooks/signing/opensign* {
 		reverse_proxy host.docker.internal:3001
 	}
 
+	# Health endpoints stay private. Check them on loopback instead; a public
+	# health probe tells an attacker when the stack is degraded.
 	handle /health* {
 		respond 404
 	}

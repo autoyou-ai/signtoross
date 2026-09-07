@@ -20,6 +20,7 @@ includes a `remedy` field — read it before deciding what to do next.
 | Is the public hostname serving? | `status` |
 | Intermittent 502s, or "works sometimes" | `doctor` |
 | Signing window finished | `down` |
+| Is the public surface protected? | `harden` |
 
 ```bash
 python tools/tunnel-agent/signtoross_tunnel.py status --json \

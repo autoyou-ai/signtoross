@@ -121,6 +121,27 @@
           "required": []
         }
       }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "signtoross_tunnel_harden",
+        "description": "Audit what the public signing hostname exposes, observed from outside rather than inferred from local configuration: whether traffic arrives through Cloudflare, whether HSTS, X-Content-Type-Options and Referrer-Policy are set, whether the signing page can be framed (clickjacking), and whether /health and /api/app are publicly reachable. Read-only and safe to call at any time. Rate limiting and Access policies cannot be observed from one client and are reported as advisory.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "hostname": {
+              "type": "string",
+              "description": "Public signing hostname to audit. Required for a useful result."
+            },
+            "root": {
+              "type": "string",
+              "description": "Deployment directory."
+            }
+          },
+          "required": []
+        }
+      }
     }
   ]
 }

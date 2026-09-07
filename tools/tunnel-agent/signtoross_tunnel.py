@@ -204,6 +204,21 @@ def docker_connectors() -> list[str]:
 #  HTTP probes
 # --------------------------------------------------------------------------- #
 
+def probe_headers(url: str, timeout: int = 12) -> tuple[int | None, dict[str, str], str]:
+    """GET a URL and return status plus response headers, lowercased."""
+    req = urllib.request.Request(url, method="GET",
+                                 headers={"User-Agent": "signtoross-tunnel"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.status, {k.lower(): v for k, v in resp.headers.items()}, ""
+    except urllib.error.HTTPError as exc:
+        return exc.code, {k.lower(): v for k, v in (exc.headers or {}).items()}, ""
+    except urllib.error.URLError as exc:
+        return None, {}, str(exc.reason)
+    except Exception as exc:                       # noqa: BLE001
+        return None, {}, str(exc)
+
+
 def probe(url: str, timeout: int = 10) -> tuple[int | None, str]:
     req = urllib.request.Request(url, method="GET",
                                  headers={"User-Agent": "signtoross-tunnel"})
@@ -535,6 +550,88 @@ def cmd_doctor(ctx: Ctx, args: argparse.Namespace) -> Result:
     return r
 
 
+def cmd_harden(ctx: Ctx, args: argparse.Namespace) -> Result:
+    """Audit what the public hostname exposes, and how it is protected.
+
+    Everything here is observed from outside, the way an attacker sees it.
+    Nothing is inferred from local configuration, because the whole point is
+    to catch the case where the configuration says one thing and the edge
+    serves another.
+    """
+    r = Result("harden")
+    url = ctx.public_url()
+    if not url:
+        r.add(Check("hostname configured", False, "none",
+                    "Pass --hostname or set SIGNTOROSS_PUBLIC_HOSTNAME."))
+        return r
+
+    status, headers, err = probe_headers(url)
+    if status is None:
+        r.add(Check("hostname reachable", False, f"{url} -> {err}",
+                    "Bring the tunnel up first: signtoross_tunnel.py up"))
+        return r
+    r.add(Check("hostname reachable", True, f"{url} -> {status}"))
+
+    # Cloudflare should be terminating TLS in front of the origin.
+    r.add(Check("served through Cloudflare",
+                "cf-ray" in headers or "cloudflare" in headers.get("server", "").lower(),
+                headers.get("server", "no server header"),
+                "Responses are not coming through Cloudflare. Confirm the "
+                "hostname is proxied (orange cloud), not DNS-only."))
+
+    # Response headers that a signing surface should always carry.
+    wanted = [
+        ("strict-transport-security", "HSTS",
+         "Add `Strict-Transport-Security \"max-age=31536000; includeSubDomains\"` "
+         "at the edge, or enable HSTS under Cloudflare SSL/TLS > Edge Certificates."),
+        ("x-content-type-options", "nosniff",
+         "Add `X-Content-Type-Options \"nosniff\"` at the edge."),
+        ("referrer-policy", "Referrer-Policy",
+         "Add `Referrer-Policy \"strict-origin-when-cross-origin\"`; signing URLs "
+         "carry context that should not leak in the Referer of outbound links."),
+    ]
+    for key, label, remedy in wanted:
+        present = key in headers
+        r.add(Check(f"header: {label}", present,
+                    headers.get(key, "absent"), remedy))
+
+    # Clickjacking: a signing page must not be framable.
+    framable = ("x-frame-options" not in headers
+                and "frame-ancestors" not in headers.get("content-security-policy", ""))
+    r.add(Check("clickjacking protection", not framable,
+                "absent" if framable
+                else headers.get("x-frame-options")
+                     or headers.get("content-security-policy", ""),
+                "A signing page that can be framed can be overlaid, so a click "
+                "lands on a signature button the user cannot see. Set "
+                "`X-Frame-Options DENY` and `Content-Security-Policy "
+                "frame-ancestors 'none'`. The bundled Caddyfile does both."))
+
+    # Paths that should not be publicly reachable.
+    for path, why in (("/health", "health endpoints reveal when the stack is degraded"),
+                      ("/api/app", "the Parse API must not be reachable unauthenticated")):
+        code, _h, _e = probe_headers(ctx.public_url(path) or "", timeout=10)
+        closed = code is None or code in (401, 403, 404)
+        r.add(Check(f"not public: {path}", closed, f"{code}",
+                    f"{path} answers {code}; {why}. Block it at the edge."))
+
+    # Access in front of the admin surface is advisory: its absence is not a
+    # failure for a public signing page, but it is worth reporting.
+    has_access = any(k.startswith("cf-access") for k in headers)
+    r.say("Cloudflare Access in front of admin paths: "
+          + ("detected" if has_access else "not detected"))
+    if not has_access:
+        r.say("  Consider a Zero Trust Access policy on the admin surface so "
+              "that only your identity provider can reach it, while the "
+              "signing pages recipients need stay public.")
+    r.say("Rate limiting: not observable from a single client. Add a "
+          "Cloudflare rate-limiting rule on the signing and login paths.")
+
+    r.data["status"] = status
+    r.data["headers_present"] = sorted(headers)
+    return r
+
+
 # --------------------------------------------------------------------------- #
 #  Entry point
 # --------------------------------------------------------------------------- #
@@ -545,6 +642,7 @@ COMMANDS = {
     "down": cmd_down,
     "status": cmd_status,
     "doctor": cmd_doctor,
+    "harden": cmd_harden,
 }
 
 
@@ -593,6 +691,8 @@ exit codes:
     doc = sub.add_parser("doctor", parents=[common], help="diagnose intermittent 502s")
     doc.add_argument("--samples", type=int, default=10,
                      help="requests to sample (default: 10)")
+    sub.add_parser("harden", parents=[common],
+                   help="audit what the public hostname exposes")
     return p
 
 

@@ -22,7 +22,11 @@ Thanks for helping improve Mike. Please keep contributions small, focused, and e
 
 ## Security
 
-Do not open a public issue for security vulnerabilities. Use [GitHub's private vulnerability reporting](https://github.com/willchen96/mike/security/advisories/new) instead.
+Do not open a public issue for security vulnerabilities. Report them privately
+through [this repository's advisory form](https://github.com/autoyou-ai/signtoross/security/advisories/new).
+
+If the issue is in unmodified upstream Mike rather than in this fork, please
+also report it to [the upstream project](https://github.com/willchen96/mike/security/advisories/new).
 
 We will aim to respond promptly and coordinate a disclosure timeline with you.
 

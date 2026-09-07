@@ -1,0 +1,38 @@
+SignToROSS
+Copyright (c) 2026 AutoYou
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License, version 3, as published by
+the Free Software Foundation. See LICENSE for the full text.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+
+THIRD-PARTY COMPONENTS
+----------------------
+
+apps/mike/
+    Derived from Mike (https://mikeoss.com), licensed AGPL-3.0-only.
+    Modified by AutoYou: an OpenSign signing adapter, an optional AutoYou
+    runtime bridge, and the associated integration checks. The upstream
+    licence notice is retained at apps/mike/LICENSE.
+
+services/opensign/
+    A deployment template only. It runs the published OpenSign container
+    images (https://github.com/OpenSignLabs/OpenSign, AGPL-3.0) and Caddy
+    (https://caddyserver.com, Apache-2.0). No OpenSign or Caddy source is
+    vendored here; the images are pulled at run time and each remains under
+    its own licence.
+
+
+NETWORK USE
+-----------
+
+AGPL-3.0 section 13 applies to this software. If you run a modified version
+and let users interact with it over a network, you must offer those users the
+corresponding source of your modified version. Deploying SignToROSS behind a
+Cloudflare Tunnel, as the tooling in this repository is designed to do, is
+exactly that case. Keep a public link to your source available from the running
+service.

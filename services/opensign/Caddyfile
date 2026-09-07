@@ -1,0 +1,17 @@
+:3051 {
+	handle /webhooks/signing/opensign* {
+		reverse_proxy host.docker.internal:3001
+	}
+
+	handle /health* {
+		respond 404
+	}
+
+	handle_path /api/* {
+		reverse_proxy server:8080
+	}
+
+	handle {
+		reverse_proxy client:3000
+	}
+}

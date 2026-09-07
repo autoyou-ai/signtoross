@@ -1,0 +1,45 @@
+# Dependencies and build output
+node_modules/
+.next/
+dist/
+out/
+build/
+.open-next/
+coverage/
+*.tsbuildinfo
+
+# Logs and local automation output
+*.log
+.codex-logs/
+.local/
+.playwright-mcp/
+
+# Environment and credential files
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.local.example
+!**/.env.prod.example
+!**/.env.sign-autoyou.example
+**/.admin-credentials.txt
+**/secrets/
+**/private/
+*.secret
+*.secrets
+*.pem
+*.p12
+*.pfx
+*.key
+*.db
+*.sqlite
+*.sqlite3
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Source repositories were consolidated here; nested Git metadata is forbidden.
+**/.git/
+**/.git

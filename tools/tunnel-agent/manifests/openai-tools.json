@@ -1,0 +1,126 @@
+{
+  "$comment": "OpenAI function-calling definitions for the SignToROSS tunnel agent. Each function maps to `python tools/tunnel-agent/signtoross_tunnel.py <command> --json` with the given flags. Exit code 0 means healthy, 1 means an actionable problem, 2 means misuse. Every failing check in the response carries a `remedy` string; surface it rather than guessing a fix.",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "signtoross_tunnel_preflight",
+        "description": "Check everything that must be true before a Cloudflare Tunnel can carry traffic to the SignToROSS signing stack: cloudflared installed, tunnel token file present, local origin answering, and the route pointing at a loopback address. Read-only and safe to call at any time. Call this before signtoross_tunnel_up.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "type": "string",
+              "description": "Deployment directory containing .local/cloudflared-token.txt. Defaults to the current directory."
+            },
+            "origin": {
+              "type": "string",
+              "description": "Local origin the Cloudflare route points at. Defaults to http://127.0.0.1:3051. Must be a loopback address."
+            }
+          },
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "signtoross_tunnel_status",
+        "description": "Report how many Cloudflare connectors are running, whether a Windows service or container connector is also present, whether the local origin answers, and whether the public hostname is serving. Read-only. Use this to answer 'is signing reachable right now'.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "type": "string",
+              "description": "Deployment directory containing .local/cloudflared-token.txt."
+            },
+            "hostname": {
+              "type": "string",
+              "description": "Public signing hostname, for example sign.example.com. Without it the public probe is skipped."
+            },
+            "origin": {
+              "type": "string",
+              "description": "Local origin the route points at. Defaults to http://127.0.0.1:3051."
+            }
+          },
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "signtoross_tunnel_doctor",
+        "description": "Diagnose a signing hostname that works intermittently. Samples the public hostname repeatedly and reports whether responses are uniform. A mix of 200 and 502 across identical requests means more than one connector is attached to the tunnel and they disagree about the origin address. IMPORTANT: when this reports a mixed result, do not restart the tunnel, which adds another connector; stop the extra connector so exactly one remains on the host that owns the origin.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "type": "string",
+              "description": "Deployment directory containing .local/cloudflared-token.txt."
+            },
+            "hostname": {
+              "type": "string",
+              "description": "Public signing hostname to sample. Required for a useful diagnosis."
+            },
+            "samples": {
+              "type": "integer",
+              "description": "Number of requests to sample. Default 10. Fewer than about 6 may miss an intermittent fault.",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "signtoross_tunnel_up",
+        "description": "Start exactly one Cloudflare connector, publishing the signing stack on its public hostname. Runs preflight first and refuses to start if preflight fails or another connector is already present. Idempotent: if a connector is already running it reports that and does nothing. SIDE EFFECT: this exposes a signing service to the public internet, so confirm with the operator before calling it.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "type": "string",
+              "description": "Deployment directory containing .local/cloudflared-token.txt."
+            },
+            "hostname": {
+              "type": "string",
+              "description": "Public signing hostname to verify once the connector is up."
+            },
+            "force": {
+              "type": "boolean",
+              "description": "Start even when another connector is present. Only pass true when the operator has confirmed the other connector does not hold this tunnel's token. Using this to bypass the check causes intermittent 502s.",
+              "default": false
+            }
+          },
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "signtoross_tunnel_down",
+        "description": "Stop the Cloudflare connector started for this deployment, removing the signing stack from its public hostname. Only stops processes started from this deployment's token file unless stop_all is true. Call this when a signing window is finished.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "type": "string",
+              "description": "Deployment directory containing .local/cloudflared-token.txt."
+            },
+            "stop_all": {
+              "type": "boolean",
+              "description": "Stop every cloudflared process on the host, not just this deployment's. Use only when clearing a known split-brain state.",
+              "default": false
+            }
+          },
+          "required": []
+        }
+      }
+    }
+  ]
+}

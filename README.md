@@ -55,23 +55,49 @@ signatures and an audit trail; it does not tell you they are sufficient.
 ```bash
 git clone https://github.com/autoyou-ai/signtoross.git
 cd signtoross
+cp services/opensign/.env.example services/opensign/.env
 cp services/opensign/.env.prod.example services/opensign/.env.prod
 ```
 
-Edit `services/opensign/.env.prod` and set, at minimum, a Parse master key, an
-admin email and password, and your SMTP details. Then:
+For a fresh installation, edit `services/opensign/.env.prod` and set a random
+Parse master key, your SMTP settings, and a document-signing certificate and
+passphrase. See [OpenSign's configuration guide](https://docs.opensignlabs.com/docs/self-host/docker/run-locally/)
+for those settings. SMTP credentials do not create an administrator account.
+Keep existing deployment files and database volumes when upgrading.
+
+`services/opensign/.env` sets `HOST_URL`, initially `http://127.0.0.1:3051` for
+local setup. Compose uses it for both the browser and server URLs. Then:
 
 ```bash
-docker compose -f services/opensign/docker-compose.yml up -d
+docker compose --env-file services/opensign/.env -f services/opensign/docker-compose.yml up -d
 ```
 
-OpenSign is now on `http://127.0.0.1:3051`. Sign in with the admin credentials
-you just set and confirm you can create a document.
+Open `http://127.0.0.1:3051` and complete OpenSign's initial administrator wizard
+on a fresh database. Sign in and confirm the dashboard loads. The wizard is
+described in [OpenSign's account setup guidance](https://docs.opensignlabs.com/docs/self-host/guides/upgrade-to-v2.1.0/).
+
+The browser calls `/api/app`; Caddy strips `/api` and forwards to the server's
+`PARSE_MOUNT=/app`. Keep that mount unchanged. To validate the example
+configuration without reading or replacing your live environment files:
+
+```powershell
+.\scripts\verify-signtoross.ps1 -SkipBuild
+```
 
 > Keep the stack on loopback. Publishing it is the tunnel's job, and binding it
 > to a LAN address is what causes the routing fault described below.
 
 ### 2. Public hostname
+
+After local setup, set `HOST_URL=https://sign.example.com` in
+`services/opensign/.env`, using your actual signing hostname without a trailing
+slash. Re-run the same Compose command to update both server and browser URLs.
+Local-only invitation links cannot be used by recipients on other machines.
+Configure the public hostname before testing a complete signing request.
+OpenSign also fetches the completed PDF from inside its server container when
+attaching it to email. That container cannot reach the host's Caddy listener
+at `127.0.0.1:3051`; use a signing hostname reachable by both it and recipients.
+The loopback default above is for initial administrator setup.
 
 Create a Cloudflare Tunnel in the [Zero Trust
 dashboard](https://one.dash.cloudflare.com/) → Networks → Tunnels. Add a public

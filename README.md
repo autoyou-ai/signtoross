@@ -20,6 +20,25 @@ them usable from outside your network:
 Signature requests need a public callback URL, which is the part that usually
 stops a self-hosted deployment. That is what the tunnel agent is for.
 
+## Demo assets
+
+![SignToROSS workflow](screenshots/signtoross-workflow.png)
+
+![AutoYou mobile companion demo](screenshots/autoyou-mobile-demo-vertical-poster.png)
+
+The [`screenshots/`](screenshots) folder contains the editable workflow board,
+a rendered README image, a portrait-first AutoYou mobile walkthrough, short
+reference reels, and safe capture scripts. The workflow board and mobile reel
+are product references. They do not represent a live signing transaction.
+
+- [Reference video reel](screenshots/signtoross-demo-reference.mp4)
+- [Live-site reference reel](screenshots/test-autoyou-reference.mp4)
+- [Portrait mobile companion demo](screenshots/autoyou-mobile-demo-vertical.mp4)
+- [Portrait live-site reference](screenshots/test-autoyou-vertical-reference.mp4)
+- [Capture script](screenshots/demo-script.md)
+- [Portrait demo notes](screenshots/mobile-demo-script.md)
+- [AutoYou live surface reference](https://test.autoyou.me/)
+
 ## Is this for you?
 
 Good fit if you want signature workflows on infrastructure you control — a firm

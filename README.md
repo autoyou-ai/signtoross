@@ -24,19 +24,22 @@ stops a self-hosted deployment. That is what the tunnel agent is for.
 
 ![SignToROSS workflow](screenshots/signtoross-workflow.png)
 
-![AutoYou mobile companion demo](screenshots/autoyou-mobile-demo-vertical-poster.png)
+![AutoYou live mobile companion demo](screenshots/autoyou-mobile-demo-live-poster.png)
 
 The [`screenshots/`](screenshots) folder contains the editable workflow board,
-a rendered README image, a portrait-first AutoYou mobile walkthrough, short
-reference reels, and safe capture scripts. The workflow board and mobile reel
+a rendered README image, a continuous native AutoYou mobile demo, short
+reference reels, and safe capture notes. The workflow board and mobile reel
 are product references. They do not represent a live signing transaction.
 
 - [Reference video reel](screenshots/signtoross-demo-reference.mp4)
 - [Live-site reference reel](screenshots/test-autoyou-reference.mp4)
-- [Portrait mobile companion demo](screenshots/autoyou-mobile-demo-vertical.mp4)
+- [Live native AutoYou companion](screenshots/autoyou-mobile-demo-live-vertical.mp4)
+- [Uncaptioned native capture](screenshots/autoyou-mobile-demo-live-native.mp4)
+- [Screenshot treatment reference](screenshots/autoyou-mobile-demo-vertical.mp4)
 - [Portrait live-site reference](screenshots/test-autoyou-vertical-reference.mp4)
 - [Capture script](screenshots/demo-script.md)
 - [Portrait demo notes](screenshots/mobile-demo-script.md)
+- [Live native capture notes](screenshots/mobile-demo-live-capture.md)
 - [AutoYou live surface reference](https://test.autoyou.me/)
 
 ## Is this for you?

@@ -36,7 +36,11 @@ in this deployment. Do not enable signup without configuring and testing email
 verification, recovery, and abuse controls.
 
 For a local-only installation, use `--public-url http://localhost:3052`.
-The public URL is embedded in the frontend build. Rebuild the frontend after
+The Docker frontend uses the gateway's `/supabase` proxy on the browser's
+current origin, so `http://127.0.0.1:3052/login` also supports password login
+when a public hostname is configured. Sessions are separate for each origin.
+Public document links and OpenSign callbacks still use the configured public
+URL. That URL is also embedded in frontend metadata; rebuild the frontend after
 changing it, then recreate services with `docker compose up -d --wait`.
 
 ## Connect the public hostname

@@ -2,6 +2,9 @@
 
 This directory contains screenshots captured directly from the running
 applications. Keep it limited to Mike document drafting and OpenSign signing.
+Capture Mike from its local Docker URL, `http://127.0.0.1:3052/login`, and
+OpenSign from `https://sign.autoyou.me/`. A separate public Mike hostname is not
+part of the capture requirements.
 
 | File | Source | What is visible |
 | --- | --- | --- |

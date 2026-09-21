@@ -48,6 +48,11 @@ Mike connection, signed webhooks, and tunnel troubleshooting.
 
 ## Mike and local Ollama
 
+Mike can run locally at `http://127.0.0.1:3052/login` with the
+[Docker deployment](services/mike/README.md). Only OpenSign needs a public
+signing hostname; local drafting and AutoYou bridge checks require no Mike DNS
+record or tunnel route.
+
 Follow [Mike's setup guide](apps/mike/README.md) for its database, storage, and
 frontend configuration. For local inference, configure Mike's backend:
 
@@ -75,6 +80,8 @@ AUTOYOU_SIGNTOROSS_ADVICE_REQUIRED=true
 
 Those bridge checks run in the integration doctor. They do not change Mike's
 normal drafting route. Keep admin, model, and diagnostic ports private.
+The [recorded live bridge verification](docs/verification/autoyou-bridge.md)
+lists the required services, passing checks, and limits of that evidence.
 The [live integration guide](apps/mike/docs/opensign-ollama-live-loop.md) explains
 how to verify the model response and OpenSign handoff on your deployment.
 

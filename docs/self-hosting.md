@@ -162,6 +162,12 @@ Configure OpenSign to call Mike back at:
 with the same `OPENSIGN_WEBHOOK_SECRET`. Set `PUBLIC_WEBHOOK_REQUIRED=true` and
 Mike rejects unsigned callbacks.
 
+Mike's interface can remain local. If an HTTPS callback is needed, route a
+dedicated callback path on the existing signing hostname to Mike; a separate
+Mike hostname is not required. The proxy route must be configured and verified
+before setting the callback base URL. Local drafting and AutoYou bridge
+verification do not depend on webhook delivery.
+
 Mike's health endpoints stay private by design - the public route does not
 expose them. Check them on loopback:
 

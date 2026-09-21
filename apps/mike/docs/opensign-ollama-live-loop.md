@@ -2,6 +2,12 @@
 
 Use this loop when moving from mock verification to live signing and local legal-model generation.
 
+For the AutoYou bridge alone, use `npm run integration:autoyou-bridge-live
+--prefix backend -- --json` and the [recorded acceptance
+checks](../../../docs/verification/autoyou-bridge.md). That private-network
+check requires no public Mike hostname or OpenSign transaction. The full-signing
+checks below have additional webhook and signing-service requirements.
+
 ## Local positive loop
 
 Run this after code or config changes when you want one command to re-prove the local path and then print the next live gate:
@@ -31,7 +37,9 @@ npm run integration:goal-audit --prefix backend
 
 That command runs the full local acceptance loop, then runs strict live
 preflight. It exits nonzero until live AutoYou, OpenSign API reachability,
-OpenSign webhook HMAC, and the public HTTPS Mike callback route are all proven.
+OpenSign webhook HMAC, and the public HTTPS callback route to Mike are all proven.
+The callback may use a routed path on the existing signing hostname; a separate
+Mike hostname is not required. This broader audit is not the bridge-only gate.
 The first requirement in the report is a separate local Ollama/no-cloud-fallback
 gate with the resolved Ollama base URL, model, install status, and version.
 Use `GOAL_AUDIT_JSON=true` for a machine-readable requirement report on
@@ -235,17 +243,21 @@ OPENSIGN_SELFHOST_SEND_EMAIL=true
 OPENSIGN_SELFHOST_REQUIRE_EMAIL=false
 ```
 
-If this is a public or production send, also configure the public Mike callback
+If this is a public or production send, also configure the HTTPS callback route
 before sending:
 
 ```bash
-MIKE_PUBLIC_API_BASE_URL=https://your-mike-api-host
+MIKE_PUBLIC_API_BASE_URL=https://sign.example.com/mike-api
 PUBLIC_WEBHOOK_REQUIRED=true
 OPENSIGN_WEBHOOK_SECRET=your-opensign-webhook-secret
 ```
 
 The live runner refuses `--send` in public/production mode unless the webhook
 secret is configured and `MIKE_PUBLIC_API_BASE_URL` is a non-local HTTPS URL.
+The example assumes the signing host's reverse proxy routes
+`/mike-api/webhooks/signing/opensign` to Mike's webhook endpoint. Configure and
+verify that path first; setting the variable does not create the route or
+publish the Mike interface.
 
 Run the dry-run first:
 
@@ -399,7 +411,7 @@ configuration outside this repository.
 Set backend env:
 
 ```bash
-MIKE_PUBLIC_API_BASE_URL=https://your-mike-api-host
+MIKE_PUBLIC_API_BASE_URL=https://sign.example.com/mike-api
 PUBLIC_WEBHOOK_REQUIRED=true
 SIGNING_PROVIDER=opensign
 OPENSIGN_API_MODE=token

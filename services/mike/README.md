@@ -17,7 +17,7 @@ and a running Ollama instance with the selected model installed.
 From this directory:
 
 ```sh
-python configure.py --public-url https://mike.example.com --ollama-model YOUR_INSTALLED_MODEL
+python configure.py --public-url http://127.0.0.1:3052 --ollama-model YOUR_INSTALLED_MODEL
 docker compose build
 docker compose up -d --wait
 python create-user.py --email owner@example.com --name Owner
@@ -35,21 +35,23 @@ approved account with `create-user.py`. There is no public password-reset flow
 in this deployment. Do not enable signup without configuring and testing email
 verification, recovery, and abuse controls.
 
-For a local-only installation, use `--public-url http://localhost:3052`.
+Open `http://127.0.0.1:3052/login` for this local installation. The
+`--public-url` option names the browser origin and accepts a loopback URL;
+it does not require publishing Mike. Only OpenSign needs a public signing
+hostname for recipients on other machines.
+
 The Docker frontend uses the gateway's `/supabase` proxy on the browser's
-current origin, so `http://127.0.0.1:3052/login` also supports password login
-when a public hostname is configured. Sessions are separate for each origin.
-Public document links and OpenSign callbacks still use the configured public
-URL. That URL is also embedded in frontend metadata; rebuild the frontend after
+current origin, so both `127.0.0.1:3052` and `localhost:3052` support password
+login. Sessions are separate for each origin. Browser document-storage links
+and frontend metadata use the configured origin. Rebuild the frontend after
 changing it, then recreate services with `docker compose up -d --wait`.
 
-## Connect the public hostname
+## Keep the local deployment running
 
-Publish the chosen hostname through your existing tunnel to
-`http://127.0.0.1:3052`. The tunnel connector must run on the same host. Keep a
-single connector unless every replica can reach the same origins. Do not expose
-the database or internal gateway listener. The browser-facing origin must use
-HTTPS. Keep the computer awake and Docker Desktop and the connector running.
+Keep the computer awake, Docker Desktop running, and the host Ollama service
+available. Mike does not need a DNS record or tunnel route for local drafting,
+document preview, or AutoYou bridge verification. Keep the database, model,
+admin services, and internal gateway listener private.
 
 `docker compose ps` should report seven healthy services and a successfully
 completed `db-init` job. All long-running services use `restart: unless-stopped`.
@@ -85,10 +87,16 @@ OPENSIGN_SELFHOST_SEND_EMAIL=false
 OPENSIGN_SELFHOST_REQUIRE_EMAIL=false
 ```
 
-Recreate the backend after editing its env file. Configure the matching OpenSign
-callback as `https://mike.example.com/backend/webhooks/signing/opensign` before
-using webhook delivery. Email sending stays disabled until the operator enables
-it deliberately. Generating a document does not send a signing request.
+Recreate the backend after editing its env file. Signing webhooks are separate
+from local drafting and bridge verification. Before using them, configure and
+verify a route from OpenSign to Mike's `/webhooks/signing/opensign` endpoint,
+with the same webhook secret. A public HTTPS callback can use a dedicated path
+on the existing signing hostname; it does not require a separate Mike hostname.
+This Compose file does not create that signing-host route. Set
+`MIKE_PUBLIC_API_BASE_URL` in a Compose override to the actual routed API base
+before running public-signing checks. Keep `PUBLIC_WEBHOOK_REQUIRED=true`.
+Email sending stays disabled until the operator enables it deliberately.
+Generating a document does not send a signing request.
 
 The optional AutoYou readiness/advice bridge is independent of Mike's direct
 Ollama drafting route. Configure it only when those HTTP services are available.

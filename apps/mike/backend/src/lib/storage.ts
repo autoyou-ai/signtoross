@@ -18,6 +18,7 @@ import {
 import { getSignedUrl as awsGetSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 let cachedClient: S3Client | undefined;
+let cachedPublicClient: S3Client | undefined;
 
 function getClient(): S3Client {
   if (!cachedClient) {
@@ -111,7 +112,21 @@ export async function getSignedUrl(
 ): Promise<string | null> {
   if (!storageEnabled) return null;
   try {
-    const client = getClient();
+    // Sign against the browser-visible endpoint. Uploads and reads can still
+    // use a private Docker hostname without leaking it into download links.
+    const publicEndpoint = process.env.R2_PUBLIC_ENDPOINT_URL?.trim();
+    if (publicEndpoint && !cachedPublicClient) {
+      cachedPublicClient = new S3Client({
+        region: "auto",
+        endpoint: publicEndpoint,
+        forcePathStyle: true,
+        credentials: {
+          accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+        },
+      });
+    }
+    const client = publicEndpoint ? cachedPublicClient! : getClient();
     // Override the response Content-Disposition so the browser uses this
     // filename on download, instead of the last path segment of the R2 key
     // (which includes the document UUID). The `download` attribute on <a>

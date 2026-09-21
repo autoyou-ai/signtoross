@@ -7,6 +7,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "smoke:adapters": "tsx src/scripts/smokeAdapters.ts",
+    "integration:ollama-stream-config": "tsx src/scripts/ollamaStreamConfigSmoke.ts",
     "integration:positive-loop": "tsx src/scripts/positiveIntegrationLoop.ts",
     "integration:positive-loop:fast": "tsx src/scripts/positiveIntegrationLoop.ts --skip-frontend --skip-slow",
     "integration:full-local-loop": "tsx src/scripts/fullLocalAcceptanceLoop.ts",

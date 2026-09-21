@@ -13,6 +13,7 @@ if ($nestedGit) {
 }
 
 $ignored = "\\node_modules\\|\\.next\\|\\dist\\|\\.git\\|\\.local\\|\\apps\\mike\\backend\\.env$|\\apps\\mike\\frontend\\.env.local$|\\services\\opensign\\.env$|\\services\\opensign\\.env.prod$|\\services\\opensign\\.admin-credentials.txt$"
+$ignored += "|\\services\\mike\\.env$|\\services\\mike\\.env.backend$"
 $machineHits = @()
 $slash = [regex]::Escape([string][char]92)
 $windowsUserPathPattern = "C:${slash}Users${slash}[A-Za-z0-9._-]+"
@@ -40,7 +41,6 @@ if ($machineHits.Count -gt 0) {
 }
 
 $forbiddenPatterns = @(
-  @{ Name = "private_public_host"; Pattern = "sign" + "\.autoyou\.me" },
   @{ Name = "private_runtime_launcher"; Pattern = "run_" + "autoyou\.bat" },
   @{ Name = "private_server_name"; Pattern = "AutoYou" + "-Server" },
   @{ Name = "provider_specific_credential_reference"; Pattern = "(Cloudflare" + " token|IO" + "NOS credential)" },

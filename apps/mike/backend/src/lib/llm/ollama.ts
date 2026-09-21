@@ -100,6 +100,28 @@ function timeoutSignal(ms: number): AbortSignal {
     return controller.signal;
 }
 
+function positiveEnvInt(name: string): number | undefined {
+    const value = Number(process.env[name]);
+    return Number.isSafeInteger(value) && value > 0 ? value : undefined;
+}
+
+function chatTimeoutMs(): number {
+    return positiveEnvInt("OLLAMA_CHAT_TIMEOUT_MS") ?? 300_000;
+}
+
+function generationOptions(maxTokens?: number): Record<string, number> {
+    const options: Record<string, number> = {};
+    const context = positiveEnvInt("OLLAMA_NUM_CTX");
+    const predict = maxTokens ?? positiveEnvInt("OLLAMA_NUM_PREDICT");
+    const temperature = process.env.OLLAMA_TEMPERATURE?.trim();
+    if (context) options.num_ctx = context;
+    if (predict) options.num_predict = predict;
+    if (temperature && Number.isFinite(Number(temperature)) && Number(temperature) >= 0) {
+        options.temperature = Number(temperature);
+    }
+    return options;
+}
+
 async function ollamaFetch(
     path: string,
     init?: RequestInit & { timeoutMs?: number },
@@ -216,11 +238,13 @@ export async function streamOllama(
             messages,
             tools: tools.length ? tools : undefined,
             stream: true,
+            options: generationOptions(),
             ...(requestThinking ? { think: true } : {}),
         };
         let response: Response;
         try {
             response = await ollamaFetch("/api/chat", {
+                timeoutMs: chatTimeoutMs(),
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(requestBody),
@@ -233,6 +257,7 @@ export async function streamOllama(
             ) {
                 requestThinking = false;
                 response = await ollamaFetch("/api/chat", {
+                    timeoutMs: chatTimeoutMs(),
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ ...requestBody, think: undefined }),
@@ -317,7 +342,7 @@ export async function completeOllamaText(params: {
             messages,
             stream: false,
             think: false,
-            options: params.maxTokens ? { num_predict: params.maxTokens } : undefined,
+            options: generationOptions(params.maxTokens),
         }),
     });
     const json = (await response.json()) as OllamaChatResponse;

@@ -59,12 +59,12 @@ export default function LoginPage() {
                             <span className="text-gray-600 px-3 py-1 bg-white rounded-sm shadow-sm">
                                 Log in
                             </span>
-                            <Link
+                            {process.env.NEXT_PUBLIC_DISABLE_SIGNUP !== "true" && <Link
                                 href="/signup"
                                 className="px-3 py-1 text-gray-500 hover:text-gray-900"
                             >
                                 Sign up
-                            </Link>
+                            </Link>}
                         </div>
                     </div>
                     <form onSubmit={handleLogin} className="space-y-4">
@@ -120,10 +120,15 @@ export default function LoginPage() {
                     </form>
                 </div>
                 <p className="text-center text-xs text-gray-500 leading-relaxed px-2">
-                    Mike hosted on MikeOSS.com is currently a demo service.
+                    This Mike instance is a demonstration service.
                     Please do not upload, submit, or store sensitive,
                     confidential, privileged, client, or personally
                     identifiable documents.
+                </p>
+                <p className="mt-3 text-center text-xs text-gray-500">
+                    <a href="https://github.com/autoyou-ai/signtoross/tree/main" className="underline">
+                        Source code (AGPL-3.0)
+                    </a>
                 </p>
             </div>
         </div>

@@ -1,0 +1,70 @@
+{
+    admin off
+    auto_https off
+}
+
+# Only this listener is published on the host's loopback interface.
+:8080 {
+    header {
+        -Server
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer
+        X-Frame-Options SAMEORIGIN
+        Strict-Transport-Security "max-age=15552000"
+    }
+    request_body {
+        max_size 50MB
+    }
+    handle /ready {
+        respond 200
+    }
+    redir /source https://github.com/autoyou-ai/signtoross/tree/main 302
+    # Invite-only hosting: no public admin, invite, recovery or signup endpoints.
+    @auth path /supabase/auth/v1/token /supabase/auth/v1/logout /supabase/auth/v1/user /supabase/auth/v1/settings /supabase/auth/v1/health
+    handle @auth {
+        header Cache-Control no-store
+        uri strip_prefix /supabase/auth/v1
+        reverse_proxy auth:9999
+    }
+    # Signed document downloads only. Writes use the private Docker network.
+    @signed_download {
+        path /supabase/storage/v1/s3/*
+        method GET HEAD OPTIONS
+    }
+    handle @signed_download {
+        route {
+            request_header X-Forwarded-Prefix /supabase/storage/v1
+            uri strip_prefix /supabase/storage/v1
+            reverse_proxy storage:5000
+        }
+    }
+    handle /supabase/* {
+        respond 404
+    }
+    handle /backend/health* {
+        respond 404
+    }
+    handle_path /backend/* {
+        header Cache-Control no-store
+        reverse_proxy backend:3001 {
+            flush_interval -1
+        }
+    }
+    handle {
+        reverse_proxy frontend:3000
+    }
+}
+
+# Supabase service endpoints, reachable only inside this Compose network.
+:8081 {
+    handle_path /auth/v1/* {
+        reverse_proxy auth:9999
+    }
+    handle_path /rest/v1/* {
+        reverse_proxy rest:3000
+    }
+    handle_path /storage/v1/* {
+        reverse_proxy storage:5000
+    }
+    respond 404
+}

@@ -18,7 +18,7 @@
     handle /ready {
         respond 200
     }
-    redir /source https://github.com/autoyou-ai/signtoross/tree/cleanup/live-product-docs 302
+    redir /source https://github.com/autoyou-ai/signtoross/tree/main 302
     # Invite-only hosting: no public admin, invite, recovery or signup endpoints.
     @auth path /supabase/auth/v1/token /supabase/auth/v1/logout /supabase/auth/v1/user /supabase/auth/v1/settings /supabase/auth/v1/health
     handle @auth {

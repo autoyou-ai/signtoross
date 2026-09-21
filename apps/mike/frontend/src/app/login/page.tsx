@@ -126,7 +126,7 @@ export default function LoginPage() {
                     identifiable documents.
                 </p>
                 <p className="mt-3 text-center text-xs text-gray-500">
-                    <a href="https://github.com/autoyou-ai/signtoross/tree/cleanup/live-product-docs" className="underline">
+                    <a href="https://github.com/autoyou-ai/signtoross/tree/main" className="underline">
                         Source code (AGPL-3.0)
                     </a>
                 </p>

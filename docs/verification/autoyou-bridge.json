@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "startedAt": "2026-09-21T07:25:54.408Z",
+  "completedAt": "2026-09-21T07:26:51.219Z",
+  "testId": "MIKE-BRIDGE-148d465f-86d9-401c-a74d-8e3e2240e46b",
+  "runtime": {
+    "status": "running",
+    "service": "AutoYou Admin Server",
+    "aiProvider": "ollama",
+    "adminPort": 8001,
+    "aiAgentPort": 8081
+  },
+  "configuredModel": "qwen3.8:27b",
+  "agentName": "autoyou_agent",
+  "sessionId": "MIKE-BRIDGE-148d465f-86d9-401c-a74d-8e3e2240e46b",
+  "response": "Parties may execute this demonstration-only NDA using OpenSign electronic signatures after agreeing to electronic signing. MIKE-BRIDGE-148d465f-86d9-401c-a74d-8e3e2240e46b",
+  "checks": {
+    "adminReachable": true,
+    "providerAligned": true,
+    "freshChatReply": true,
+    "sessionPreserved": true,
+    "unavailableBridgeRejected": true,
+    "cloudFallbackDisabled": true
+  }
+}

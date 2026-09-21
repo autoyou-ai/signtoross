@@ -16,6 +16,7 @@
     "integration:live-preflight": "tsx src/scripts/livePreflight.ts",
     "integration:doctor-all-green-smoke": "tsx src/scripts/doctorAllGreenSmoke.ts",
     "integration:autoyou-signtoross-smoke": "tsx src/scripts/autoyouSigntorossSmoke.ts",
+    "integration:autoyou-bridge-live": "tsx src/scripts/autoyouBridgeLive.ts",
     "integration:ollama-legal-preflight": "tsx src/scripts/ollamaLegalPreflight.ts",
     "integration:ollama-fallback-smoke": "tsx src/scripts/ollamaFallbackSmoke.ts",
     "integration:webhook-public-rejection": "tsx src/scripts/publicWebhookRejectionSmoke.ts",

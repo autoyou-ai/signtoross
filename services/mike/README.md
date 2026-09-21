@@ -89,6 +89,35 @@ it deliberately. Generating a document does not send a signing request.
 The optional AutoYou readiness/advice bridge is independent of Mike's direct
 Ollama drafting route. Configure it only when those HTTP services are available.
 
+To require and verify that bridge, set the following in `.env.backend`, using
+addresses reachable from the backend container. The example assumes an AutoYou
+service named `autoyou` on a shared private Docker network:
+
+```env
+AUTOYOU_ADMIN_API_BASE=http://autoyou:8001
+AUTOYOU_CHAT_API_BASE=http://autoyou:8081
+AUTOYOU_RUNTIME_REQUIRED=true
+AUTOYOU_SIGNTOROSS_ADVICE_REQUIRED=true
+AUTOYOU_RUNTIME_TIMEOUT_MS=5000
+AUTOYOU_SIGNTOROSS_ADVICE_TIMEOUT_MS=180000
+```
+
+Recreate the backend after changing these settings, then run:
+
+```sh
+docker compose exec -T backend node dist/scripts/autoyouBridgeLive.js --json
+```
+
+This live check requires `OLLAMA_CLOUD_FALLBACK=false`. It checks the admin
+provider, requests a fresh text fixture through AutoYou, verifies the returned
+session and agent, and confirms that an unavailable AutoYou endpoint fails
+without a fallback reply. Allow for local model loading time. The check creates
+a test conversation in AutoYou and sends no signature request. Outside Docker,
+run `npm run integration:autoyou-bridge-live --prefix apps/mike/backend -- --json`
+from the repository root with the same environment configured.
+See the [recorded live verification](../../docs/verification/autoyou-bridge.md)
+for the checked behavior and its scope.
+
 ## Verify, update, and back up
 
 ```sh

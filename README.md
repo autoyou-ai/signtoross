@@ -8,7 +8,8 @@ Mike prepares documents; OpenSign manages recipients, signing, and the signed PD
 | --- | --- |
 | [Run OpenSign](docs/self-hosting.md#1-signing-service) | Docker and Compose v2 |
 | [Add a public signing hostname](docs/self-hosting.md#2-public-hostname) | Your domain and Cloudflare Tunnel |
-| [Add Mike](apps/mike/README.md) | Node.js 20+, Supabase, S3-compatible storage, and a model provider |
+| [Host Mike with Docker](services/mike/README.md) | Docker, Python 3.10+, and an installed Ollama model with tool support |
+| [Develop Mike locally](apps/mike/README.md) | Node.js 20+, Supabase, S3-compatible storage, and a model provider |
 | [Contribute](CONTRIBUTING.md) | A focused change and the checks below |
 
 ## Hosted OpenSign
@@ -94,6 +95,7 @@ verify contracts; use the live preflight separately to check a real deployment.
 | --- | --- |
 | `apps/mike/` | Mike frontend, backend, document tools, and signing adapters |
 | `services/opensign/` | OpenSign Compose and Caddy configuration templates |
+| `services/mike/` | Mike Compose hosting, private storage, and account provisioning |
 | `tools/tunnel-agent/` | Cloudflare Tunnel preflight and diagnostics |
 | `scripts/` | Installation, startup, and verification helpers |
 | `screenshots/` | Captures of the actual signing and drafting applications |

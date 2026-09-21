@@ -113,6 +113,17 @@ export default function SignupPage() {
     }
 
     // Default Signup Form View
+    if (process.env.NEXT_PUBLIC_DISABLE_SIGNUP === "true") {
+        return (
+            <div className="min-h-dvh flex flex-col items-center justify-center gap-4 px-6">
+                <SiteLogo size="md" asLink />
+                <h1 className="text-2xl font-serif">Accounts are provided by the host</h1>
+                <p>Contact the person hosting this Mike instance for access.</p>
+                <Link href="/login" className="underline">Log in</Link>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-dvh bg-white flex items-start justify-center px-6 pt-32 md:pt-40 pb-10 relative">
             <div className="absolute top-4 md:top-8 left-1/2 -translate-x-1/2">

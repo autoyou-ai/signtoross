@@ -13,6 +13,7 @@ if ($nestedGit) {
 }
 
 $ignored = "\\node_modules\\|\\.next\\|\\dist\\|\\.git\\|\\.local\\|\\apps\\mike\\backend\\.env$|\\apps\\mike\\frontend\\.env.local$|\\services\\opensign\\.env$|\\services\\opensign\\.env.prod$|\\services\\opensign\\.admin-credentials.txt$"
+$ignored += "|\\services\\mike\\.env$|\\services\\mike\\.env.backend$"
 $machineHits = @()
 $slash = [regex]::Escape([string][char]92)
 $windowsUserPathPattern = "C:${slash}Users${slash}[A-Za-z0-9._-]+"

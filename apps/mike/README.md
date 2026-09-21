@@ -4,6 +4,11 @@ Mike is a legal document assistant with a Next.js frontend, an Express backend, 
 
 Website: [mikeoss.com](https://mikeoss.com)
 
+For a complete container deployment, use the
+[Docker hosting guide](../../services/mike/README.md). It includes authentication,
+persistent storage, PDF conversion, and account provisioning. The steps below
+remain available for local development and separately managed dependencies.
+
 ## Contents
 
 - `frontend/` - Next.js application

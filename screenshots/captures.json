@@ -1,0 +1,15 @@
+{
+  "captures": [
+    {
+      "file": "opensign-hosted-dashboard.png",
+      "source_url": "https://sign.autoyou.me/",
+      "captured_at_utc": "2026-09-21",
+      "surface": "Signed-in OpenSign dashboard, version 2.38.0",
+      "method": "Unmodified browser viewport screenshot",
+      "data": "Empty document lists; no recipient or document content",
+      "sha256": "53e31fb36039884b3976efc83b4ad770b6981b66bea7fedf39b9d83f5666a0f1",
+      "proves": "The hosted OpenSign dashboard renders.",
+      "does_not_prove": "Mike generation, Ollama routing, or a completed signing transaction."
+    }
+  ]
+}
